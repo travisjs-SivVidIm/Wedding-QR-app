@@ -1,0 +1,25 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-repo/wedding-uploader-app:$COMMIT_SHA', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-repo/wedding-uploader-app:$COMMIT_SHA']
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - run
+      - --filename=.
+      - --image=australia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-repo/wedding-uploader-app:$COMMIT_SHA
+      - --location=australia-southeast1
+      - --namespace=default
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'wedding-uploader-app'
+      - '--image=australia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-repo/wedding-uploader-app:$COMMIT_SHA'
+      - '--region=australia-southeast1'
+      - '--platform=managed'
+      - '--memory=1Gi'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCLd5ytdIukBwasyVN7VP_1jla7mDvsWMQ,NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=wedding-uploader-app.firebaseapp.com,NEXT_PUBLIC_FIREBASE_PROJECT_ID=wedding-uploader-app,NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=wedding-uploader-app.firebasestorage.app,NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=222547555049,NEXT_PUBLIC_FIREBASE_APP_ID=1:222547555049:web:68f4b4e149d8d9e284b678'
+images:
+  - 'australia-southeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-repo/wedding-uploader-app:$COMMIT_SHA'
